@@ -3,9 +3,9 @@ name: clickhouse-query
 description: Query ClickHouse databases using the chcli CLI tool. Use when the user wants to run SQL queries against ClickHouse, explore database schemas, inspect tables, or extract data from ClickHouse.
 metadata:
   author: obsessiondb
-  version: "1.0"
+  version: "1.1"
 compatibility: Requires bun or node (for bunx/npx). Needs network access to a ClickHouse instance.
-allowed-tools: Bash(bunx chcli:*) Bash(npx chcli:*) Bash(chcli:*) Read Write
+allowed-tools: Bash(bunx @obsessiondb/chcli:*) Bash(npx @obsessiondb/chcli:*) Bash(chcli:*) Bash(doppler run:*) Read Write
 ---
 
 # chcli — ClickHouse CLI
@@ -17,8 +17,8 @@ chcli is a lightweight ClickHouse command-line client. Use it to run SQL queries
 Prefer `bunx` if Bun is available, otherwise use `npx`:
 
 ```bash
-bunx chcli -q "SELECT 1"
-npx chcli -q "SELECT 1"
+bunx @obsessiondb/chcli -q "SELECT 1"
+npx @obsessiondb/chcli -q "SELECT 1"
 ```
 
 Or install globally:
@@ -30,18 +30,27 @@ chcli -q "SELECT 1"
 
 ## Connection
 
-Set connection details via environment variables (preferred for agent use) or CLI flags. CLI flags override env vars.
+Set connection details via environment variables (preferred for agent use) or CLI flags.
 
-| Flag | Env Var | Default |
-|------|---------|---------|
-| `--host` | `CLICKHOUSE_HOST` | `localhost` |
-| `--port` | `CLICKHOUSE_PORT` | `8123` |
-| `-u, --user` | `CLICKHOUSE_USER` | `default` |
-| `--password` | `CLICKHOUSE_PASSWORD` | *(empty)* |
-| `-d, --database` | `CLICKHOUSE_DATABASE` | `default` |
-| `-s, --secure` | `CLICKHOUSE_SECURE` | `false` |
+| Flag | Env Var | Alt Env Var | Default |
+|------|---------|-------------|---------|
+| `--host` | `CLICKHOUSE_HOST` | | `localhost` |
+| `--port` | `CLICKHOUSE_PORT` | | `8123` |
+| `-u, --user` | `CLICKHOUSE_USER` | `CLICKHOUSE_USERNAME` | `default` |
+| `--password` | `CLICKHOUSE_PASSWORD` | | *(empty)* |
+| `-d, --database` | `CLICKHOUSE_DATABASE` | `CLICKHOUSE_DB` | `default` |
+| `-s, --secure` | `CLICKHOUSE_SECURE` | | `false` |
+| *(none)* | `CLICKHOUSE_URL` | | *(none)* |
 
-For agent workflows, prefer setting env vars in a `.env` file (Bun loads `.env` automatically) so every invocation uses the same connection without repeating flags.
+`CLICKHOUSE_URL` accepts a full URL (e.g. `https://host:8443`) and is parsed into host, port, secure, and password as a fallback when the individual env vars are not set.
+
+### Resolution Order
+
+```
+CLI flag > Individual env var > CLICKHOUSE_URL (parsed) > Default value
+```
+
+For agent workflows, prefer setting env vars in a `.env` file (Bun loads `.env` automatically) or using a secrets manager like Doppler so every invocation uses the same connection without repeating flags.
 
 See `references/connection.md` for detailed connection examples.
 
@@ -50,19 +59,19 @@ See `references/connection.md` for detailed connection examples.
 **Inline query** (most common for agents):
 
 ```bash
-bunx chcli -q "SELECT count() FROM events"
+bunx @obsessiondb/chcli -q "SELECT count() FROM events"
 ```
 
 **From a SQL file:**
 
 ```bash
-bunx chcli -f query.sql
+bunx @obsessiondb/chcli -f query.sql
 ```
 
 **Via stdin pipe:**
 
 ```bash
-echo "SELECT 1" | bunx chcli
+echo "SELECT 1" | bunx @obsessiondb/chcli
 ```
 
 ## Output Formats
@@ -71,13 +80,13 @@ echo "SELECT 1" | bunx chcli
 
 ```bash
 # JSON — best for structured parsing
-bunx chcli -q "SELECT * FROM events LIMIT 5" -F json
+bunx @obsessiondb/chcli -q "SELECT * FROM events LIMIT 5" -F json
 
 # CSV — good for tabular data
-bunx chcli -q "SELECT * FROM events LIMIT 5" -F csv
+bunx @obsessiondb/chcli -q "SELECT * FROM events LIMIT 5" -F csv
 
 # JSONL (one JSON object per line) — good for streaming/large results
-bunx chcli -q "SELECT * FROM events LIMIT 100" -F jsonl
+bunx @obsessiondb/chcli -q "SELECT * FROM events LIMIT 100" -F jsonl
 ```
 
 Available format aliases: `json`, `jsonl`/`ndjson`, `jsoncompact`, `csv`, `tsv`, `pretty`, `vertical`, `markdown`, `sql`. Any native ClickHouse format name also works.
@@ -90,42 +99,42 @@ See `references/formats.md` for the full format reference.
 
 ```bash
 # List all databases
-bunx chcli -q "SHOW DATABASES" -F json
+bunx @obsessiondb/chcli -q "SHOW DATABASES" -F json
 
 # List tables in current database
-bunx chcli -q "SHOW TABLES" -F json
+bunx @obsessiondb/chcli -q "SHOW TABLES" -F json
 
 # List tables in a specific database
-bunx chcli -q "SHOW TABLES FROM analytics" -F json
+bunx @obsessiondb/chcli -q "SHOW TABLES FROM analytics" -F json
 
 # Describe table schema
-bunx chcli -q "DESCRIBE TABLE events" -F json
+bunx @obsessiondb/chcli -q "DESCRIBE TABLE events" -F json
 
 # Show CREATE TABLE statement
-bunx chcli -q "SHOW CREATE TABLE events"
+bunx @obsessiondb/chcli -q "SHOW CREATE TABLE events"
 ```
 
 ### Data Exploration
 
 ```bash
 # Row count
-bunx chcli -q "SELECT count() FROM events" -F json
+bunx @obsessiondb/chcli -q "SELECT count() FROM events" -F json
 
 # Sample rows
-bunx chcli -q "SELECT * FROM events LIMIT 10" -F json
+bunx @obsessiondb/chcli -q "SELECT * FROM events LIMIT 10" -F json
 
 # Column statistics
-bunx chcli -q "SELECT uniq(user_id), min(created_at), max(created_at) FROM events" -F json
+bunx @obsessiondb/chcli -q "SELECT uniq(user_id), min(created_at), max(created_at) FROM events" -F json
 ```
 
 ### Data Extraction
 
 ```bash
 # Extract to CSV file
-bunx chcli -q "SELECT * FROM events WHERE date = '2024-01-01'" -F csv > export.csv
+bunx @obsessiondb/chcli -q "SELECT * FROM events WHERE date = '2024-01-01'" -F csv > export.csv
 
 # Extract as JSON
-bunx chcli -q "SELECT * FROM events LIMIT 1000" -F json > export.json
+bunx @obsessiondb/chcli -q "SELECT * FROM events LIMIT 1000" -F json > export.json
 ```
 
 ## Additional Flags
@@ -143,5 +152,5 @@ bunx chcli -q "SELECT * FROM events LIMIT 1000" -F json > export.json
 2. **Always use `LIMIT`** on SELECT queries unless you know the table is small. ClickHouse tables can contain billions of rows.
 3. **Start with schema discovery** — run `SHOW TABLES` and `DESCRIBE TABLE` before querying unfamiliar databases.
 4. **Use `-t` for timing** — helps gauge whether queries are efficient.
-5. **Prefer env vars for connection** — set them once in `.env` rather than repeating flags on every command.
+5. **Prefer env vars for connection** — set them once in `.env` or via a secrets manager like Doppler rather than repeating flags on every command.
 6. **Use `count()` first** — before extracting data, check how many rows match to avoid overwhelming output.
