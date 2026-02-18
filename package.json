@@ -1,12 +1,19 @@
 {
   "name": "chcli",
+  "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
+  "bin": {
+    "chcli": "index.ts"
+  },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@clickhouse/client": "^1.17.0"
   }
 }
