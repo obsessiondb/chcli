@@ -1,15 +1,29 @@
 {
   "name": "chcli",
   "version": "0.1.0",
-  "module": "index.ts",
+  "description": "Lightweight ClickHouse CLI — run queries from the terminal via inline SQL, files, or stdin",
   "type": "module",
   "bin": {
-    "chcli": "index.ts"
+    "chcli": "dist/chcli.js"
   },
-  "private": true,
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "clickhouse",
+    "cli",
+    "sql",
+    "database",
+    "query"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KeKs0r/chcli.git"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "bun build index.ts --compile --outfile dist/chcli",
+    "build": "bun build index.ts --outfile dist/chcli.js --target node --packages external",
     "test": "bun run build && bun test",
     "test:env": "doppler run -p chcli -c ci -- bun run test",
     "changeset": "changeset",

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll } from "bun:test";
 import { $ } from "bun";
 
-const CLI = "./dist/chcli";
+const CLI = "node ./dist/chcli.js";
 
 beforeAll(async () => {
   await $`bun run build`.quiet();
