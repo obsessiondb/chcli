@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/KeKs0r/chcli.git"
+    "url": "https://github.com/obsessiondb/chcli.git"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
