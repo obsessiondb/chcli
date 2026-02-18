@@ -5,61 +5,43 @@ A lightweight ClickHouse CLI built on [Bun](https://bun.sh).
 ## Install
 
 ```bash
-bun install
+npm install -g @obsessiondb/chcli
 ```
 
-## Usage
+## Query input
+
+Provide a query inline, from a file, or piped via stdin:
 
 ```bash
-bun run index.ts [options]
-```
-
-### Query input
-
-Provide a query via one of three methods:
-
-```bash
-# Inline query
 chcli -q "SELECT 1"
-
-# From a .sql file
 chcli -f query.sql
-
-# Piped via stdin
 echo "SELECT 1" | chcli
 ```
 
-### ClickHouse connection
+## Connecting to ClickHouse
 
-Connection parameters can be set via CLI flags or environment variables. CLI flags take precedence over environment variables.
+Connection can be configured via CLI flags or environment variables. Flags take precedence.
 
-| Flag | Env var | Default | Description |
-|------|---------|---------|-------------|
-| `--host <host>` | `CLICKHOUSE_HOST` | `localhost` | ClickHouse host |
-| `--port <port>` | `CLICKHOUSE_PORT` | `8123` | HTTP port |
-| `-u, --user <user>` | `CLICKHOUSE_USER` | `default` | Username |
-| `--password <pass>` | `CLICKHOUSE_PASSWORD` | *(empty)* | Password |
-| `-d, --database <db>` | `CLICKHOUSE_DATABASE` | `default` | Database |
-| `-s, --secure` | `CLICKHOUSE_SECURE` | `false` | Use HTTPS |
-
-#### Examples
-
-Connect to a local instance (defaults):
+| Flag | Env var | Default |
+|------|---------|---------|
+| `--host <host>` | `CLICKHOUSE_HOST` | `localhost` |
+| `--port <port>` | `CLICKHOUSE_PORT` | `8123` |
+| `-u, --user <user>` | `CLICKHOUSE_USER` | `default` |
+| `--password <pass>` | `CLICKHOUSE_PASSWORD` | *(empty)* |
+| `-d, --database <db>` | `CLICKHOUSE_DATABASE` | `default` |
+| `-s, --secure` | `CLICKHOUSE_SECURE` | `false` |
 
 ```bash
+# Local instance with defaults
 chcli -q "SHOW DATABASES"
-```
 
-Connect to a remote instance:
-
-```bash
+# Remote instance
 chcli --host ch.example.com --port 8443 --secure \
-      --user admin --password secret \
-      -d analytics \
-      -q "SELECT count() FROM events"
+      -u admin --password secret \
+      -d analytics -q "SELECT count() FROM events"
 ```
 
-Using environment variables (Bun loads `.env` automatically):
+Or set your connection in a `.env` file (Bun loads it automatically):
 
 ```env
 CLICKHOUSE_HOST=ch.example.com
@@ -70,21 +52,15 @@ CLICKHOUSE_PASSWORD=secret
 CLICKHOUSE_DATABASE=analytics
 ```
 
-```bash
-chcli -q "SELECT count() FROM events"
-```
-
-### Output options
+## Output formats
 
 | Flag | Description |
 |------|-------------|
-| `-F, --format <fmt>` | Output format (see below) |
+| `-F, --format <fmt>` | Output format (see table below) |
 | `-t, --time` | Print execution time to stderr |
 | `-v, --verbose` | Print query metadata to stderr |
 
-#### Formats
-
-When connected to a TTY, the default format is `pretty`. When piping output, the default is `tsv`.
+Default format is `pretty` in a terminal, `tsv` when piping.
 
 | Alias | ClickHouse format |
 |-------|-------------------|
@@ -97,28 +73,23 @@ When connected to a TTY, the default format is `pretty`. When piping output, the
 | `markdown` | Markdown |
 | `sql` | SQLInsert |
 
-You can also pass any native ClickHouse format name directly.
+Any native ClickHouse format name is also accepted directly.
 
-### Other flags
-
-| Flag | Description |
-|------|-------------|
-| `--help` | Show help text |
-| `--version` | Print version |
+```bash
+chcli -q "SELECT * FROM events LIMIT 5" -F json
+chcli -q "SHOW TABLES" -F csv > tables.csv
+```
 
 ## Agent Skill
 
-chcli includes an [Agent Skill](https://agentskills.io) so AI coding agents (Claude Code, Cursor, etc.) can query ClickHouse databases on your behalf.
-
-Install the skill:
+chcli ships as an [Agent Skill](https://agentskills.io) so AI coding agents (Claude Code, Cursor, etc.) can query your ClickHouse databases directly.
 
 ```bash
 npx skills add obsessiondb/chcli
 ```
 
-This gives your agent the ability to:
+Once installed, your agent can run SQL queries, explore schemas, and extract data using `chcli` — no manual copy-pasting required.
 
-- Run SQL queries against ClickHouse using `chcli`
-- Explore database schemas (`SHOW TABLES`, `DESCRIBE TABLE`)
-- Extract data in machine-readable formats (JSON, CSV)
-- Follow best practices like using `LIMIT` and structured output formats
+---
+
+Sponsored by [obsessiondb.com](https://obsessiondb.com)
