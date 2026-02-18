@@ -40,10 +40,14 @@ Query input (one of):
 Connection:
       --host <host>       ClickHouse host (env: CLICKHOUSE_HOST, default: localhost)
       --port <port>       HTTP port (env: CLICKHOUSE_PORT, default: 8123)
-  -u, --user <user>       Username (env: CLICKHOUSE_USER, default: default)
+  -u, --user <user>       Username (env: CLICKHOUSE_USER or CLICKHOUSE_USERNAME, default: default)
       --password <pass>   Password (env: CLICKHOUSE_PASSWORD, default: "")
-  -d, --database <db>     Database (env: CLICKHOUSE_DATABASE, default: default)
+  -d, --database <db>     Database (env: CLICKHOUSE_DATABASE or CLICKHOUSE_DB, default: default)
   -s, --secure            Use HTTPS (env: CLICKHOUSE_SECURE)
+
+  CLICKHOUSE_URL is also supported (e.g. https://host:8443) and will be
+  used for host, port, secure, and password if the individual env vars
+  are not set.
 
 Output:
   -F, --format <fmt>      Output format (json, jsonl, csv, tsv, pretty, vertical, markdown, sql)
