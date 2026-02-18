@@ -105,3 +105,20 @@ You can also pass any native ClickHouse format name directly.
 |------|-------------|
 | `--help` | Show help text |
 | `--version` | Print version |
+
+## Agent Skill
+
+chcli includes an [Agent Skill](https://agentskills.io) so AI coding agents (Claude Code, Cursor, etc.) can query ClickHouse databases on your behalf.
+
+Install the skill:
+
+```bash
+npx skills add obsessiondb/chcli
+```
+
+This gives your agent the ability to:
+
+- Run SQL queries against ClickHouse using `chcli`
+- Explore database schemas (`SHOW TABLES`, `DESCRIBE TABLE`)
+- Extract data in machine-readable formats (JSON, CSV)
+- Follow best practices like using `LIMIT` and structured output formats
