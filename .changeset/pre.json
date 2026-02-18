@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@obsessiondb/chcli": "0.1.0"
+  },
+  "changesets": [
+    "initial-npm-release"
+  ]
+}

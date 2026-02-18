@@ -376,7 +376,7 @@ function ensureNpmAuth(): void {
 function runQualityGates(): void {
 	logLine('Running quality gates (typecheck, test)...')
 	runCommand('bun', ['run', 'typecheck'])
-	runCommand('bun', ['run', 'test'])
+	runCommand('bun', ['run', 'test:env'])
 }
 
 // ---------------------------------------------------------------------------

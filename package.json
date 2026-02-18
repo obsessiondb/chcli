@@ -1,6 +1,6 @@
 {
-  "name": "chcli",
-  "version": "0.1.0",
+  "name": "@obsessiondb/chcli",
+  "version": "0.1.1-beta.4",
   "description": "Lightweight ClickHouse CLI — run queries from the terminal via inline SQL, files, or stdin",
   "type": "module",
   "bin": {
@@ -28,11 +28,10 @@
     "test:env": "doppler run -p chcli -c ci -- bun run test",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish",
-    "release:manual": "bun run ./scripts/manual-release.ts"
+    "release": "bun run ./scripts/manual-release.ts"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.29.4",
+    "@changesets/cli": "^2.29.8",
     "@types/bun": "latest"
   },
   "peerDependencies": {
