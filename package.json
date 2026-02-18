@@ -7,7 +7,16 @@
     "chcli": "index.ts"
   },
   "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish",
+    "release:manual": "bun run ./scripts/manual-release.ts"
+  },
   "devDependencies": {
+    "@changesets/cli": "^2.29.4",
     "@types/bun": "latest"
   },
   "peerDependencies": {
