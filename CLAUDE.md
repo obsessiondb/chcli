@@ -28,6 +28,8 @@ Default to using Bun instead of Node.js.
 
 Use `bun test` to run tests.
 
+**If a test requires an environment variable (secrets, API keys, connection strings), it MUST fail — never skip or pass silently.** Do not use `skipIf`, `test.skip`, early returns, or try-catch to hide missing env vars. Tests that need env vars should blow up loudly so CI catches misconfigurations.
+
 ```ts#index.test.ts
 import { test, expect } from "bun:test";
 

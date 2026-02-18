@@ -9,7 +9,9 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "bun test",
+    "build": "bun build index.ts --compile --outfile dist/chcli",
+    "test": "bun run build && bun test",
+    "test:env": "doppler run -p chcli -c ci -- bun run test",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
