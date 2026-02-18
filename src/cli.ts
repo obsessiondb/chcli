@@ -56,5 +56,6 @@ Other:
 }
 
 export function printVersion() {
-  console.log("chcli 0.1.0");
+  const pkg = require("../package.json");
+  console.log(`chcli ${pkg.version}`);
 }

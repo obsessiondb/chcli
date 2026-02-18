@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import type { CliConfig } from "./cli";
 import { printHelp } from "./cli";
 
@@ -7,13 +8,21 @@ export async function resolveQuery(config: CliConfig): Promise<string> {
   }
 
   if (config.file) {
-    return await Bun.file(config.file).text();
+    return await readFile(config.file, "utf8");
   }
 
   if (!process.stdin.isTTY) {
-    return await Bun.stdin.text();
+    return await readStdin();
   }
 
   printHelp();
   process.exit(1);
+}
+
+async function readStdin(): Promise<string> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of process.stdin) {
+    chunks.push(typeof chunk === "string" ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks).toString("utf8");
 }
