@@ -11,9 +11,12 @@ const FORMAT_ALIASES: Record<string, string> = {
   sql: "SQLInsert",
 };
 
-export function resolveFormat(userFormat: string | undefined): string {
+export function resolveFormat(
+  userFormat: string | undefined,
+  isTTY = !!process.stdout.isTTY,
+): string {
   if (userFormat) {
     return FORMAT_ALIASES[userFormat.toLowerCase()] ?? userFormat;
   }
-  return process.stdout.isTTY ? "PrettyCompactMonoBlock" : "TabSeparatedWithNames";
+  return isTTY ? "PrettyCompactMonoBlock" : "TabSeparatedWithNames";
 }
