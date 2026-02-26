@@ -11,18 +11,21 @@ export function parseClickHouseUrl(raw: string) {
   };
 }
 
-export function resolveConnectionConfig(config: CliConfig) {
-  const parsed = process.env.CLICKHOUSE_URL
-    ? parseClickHouseUrl(process.env.CLICKHOUSE_URL)
+export function resolveConnectionConfig(
+  config: CliConfig,
+  env: Record<string, string | undefined> = process.env,
+) {
+  const parsed = env.CLICKHOUSE_URL
+    ? parseClickHouseUrl(env.CLICKHOUSE_URL)
     : undefined;
 
   const host =
-    config.host || process.env.CLICKHOUSE_HOST || parsed?.host || "localhost";
+    config.host || env.CLICKHOUSE_HOST || parsed?.host || "localhost";
   const port =
-    config.port || process.env.CLICKHOUSE_PORT || parsed?.port || "8123";
+    config.port || env.CLICKHOUSE_PORT || parsed?.port || "8123";
   const secure =
     config.secure ||
-    process.env.CLICKHOUSE_SECURE === "true" ||
+    env.CLICKHOUSE_SECURE === "true" ||
     (parsed?.secure ?? false);
   const protocol = secure ? "https" : "http";
 
@@ -30,18 +33,18 @@ export function resolveConnectionConfig(config: CliConfig) {
     url: `${protocol}://${host}:${port}`,
     username:
       config.user ||
-      process.env.CLICKHOUSE_USER ||
-      process.env.CLICKHOUSE_USERNAME ||
+      env.CLICKHOUSE_USER ||
+      env.CLICKHOUSE_USERNAME ||
       "default",
     password:
       config.password ||
-      process.env.CLICKHOUSE_PASSWORD ||
+      env.CLICKHOUSE_PASSWORD ||
       parsed?.password ||
       "",
     database:
       config.database ||
-      process.env.CLICKHOUSE_DATABASE ||
-      process.env.CLICKHOUSE_DB ||
+      env.CLICKHOUSE_DATABASE ||
+      env.CLICKHOUSE_DB ||
       "default",
   };
 }

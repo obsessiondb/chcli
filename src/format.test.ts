@@ -28,16 +28,10 @@ describe("resolveFormat", () => {
   });
 
   test("defaults to PrettyCompactMonoBlock when stdout is a TTY", () => {
-    const orig = process.stdout.isTTY;
-    Object.defineProperty(process.stdout, "isTTY", { value: true, writable: true });
-    expect(resolveFormat(undefined)).toBe("PrettyCompactMonoBlock");
-    Object.defineProperty(process.stdout, "isTTY", { value: orig, writable: true });
+    expect(resolveFormat(undefined, true)).toBe("PrettyCompactMonoBlock");
   });
 
   test("defaults to TabSeparatedWithNames when stdout is not a TTY", () => {
-    const orig = process.stdout.isTTY;
-    Object.defineProperty(process.stdout, "isTTY", { value: undefined, writable: true });
-    expect(resolveFormat(undefined)).toBe("TabSeparatedWithNames");
-    Object.defineProperty(process.stdout, "isTTY", { value: orig, writable: true });
+    expect(resolveFormat(undefined, false)).toBe("TabSeparatedWithNames");
   });
 });
