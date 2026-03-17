@@ -135,3 +135,64 @@ describe("resolveConnectionConfig", () => {
     });
   });
 });
+
+describe("resolveConnectionConfig with named environment", () => {
+  const emptyConfig = {} as Parameters<typeof resolveConnectionConfig>[0];
+  const emptyEnv = {};
+
+  test("named environment provides connection settings", () => {
+    const result = resolveConnectionConfig(emptyConfig, emptyEnv, {
+      host: "named.host.com",
+      port: "9000",
+      user: "named_user",
+      password: "named_pass",
+      database: "named_db",
+      secure: true,
+    });
+    expect(result).toEqual({
+      url: "https://named.host.com:9000",
+      username: "named_user",
+      password: "named_pass",
+      database: "named_db",
+    });
+  });
+
+  test("named environment takes precedence over env vars", () => {
+    const result = resolveConnectionConfig(
+      emptyConfig,
+      { CLICKHOUSE_HOST: "env-host", CLICKHOUSE_USER: "env_user" },
+      { host: "named.host.com", user: "named_user" },
+    );
+    expect(result.url).toContain("named.host.com");
+    expect(result.username).toBe("named_user");
+  });
+
+  test("CLI flags take precedence over named environment", () => {
+    const config = {
+      host: "flag-host",
+      user: "flag_user",
+    } as Parameters<typeof resolveConnectionConfig>[0];
+
+    const result = resolveConnectionConfig(config, emptyEnv, {
+      host: "named.host.com",
+      user: "named_user",
+    });
+    expect(result.url).toContain("flag-host");
+    expect(result.username).toBe("flag_user");
+  });
+
+  test("named environment url is parsed for host/port/secure", () => {
+    const result = resolveConnectionConfig(emptyConfig, emptyEnv, {
+      url: "https://url-host.com:8443",
+    });
+    expect(result.url).toBe("https://url-host.com:8443");
+  });
+
+  test("named environment host takes precedence over named url", () => {
+    const result = resolveConnectionConfig(emptyConfig, emptyEnv, {
+      url: "https://url-host.com:8443",
+      host: "explicit-host.com",
+    });
+    expect(result.url).toContain("explicit-host.com");
+  });
+});
