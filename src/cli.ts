@@ -9,6 +9,7 @@ const options = {
   password: { type: "string" },
   database: { type: "string", short: "d" },
   secure: { type: "boolean", short: "s", default: false },
+  env: { type: "string", short: "e" },
   format: { type: "string", short: "F" },
   time: { type: "boolean", short: "t", default: false },
   verbose: { type: "boolean", short: "v", default: false },
@@ -44,10 +45,14 @@ Connection:
       --password <pass>   Password (env: CLICKHOUSE_PASSWORD, default: "")
   -d, --database <db>     Database (env: CLICKHOUSE_DATABASE or CLICKHOUSE_DB, default: default)
   -s, --secure            Use HTTPS (env: CLICKHOUSE_SECURE)
+  -e, --env <name>        Use a named environment (overrides folder default)
 
   CLICKHOUSE_URL is also supported (e.g. https://host:8443) and will be
   used for host, port, secure, and password if the individual env vars
   are not set.
+
+  Environments can be configured with \`chcli env add <name>\`.
+  Set a default environment for the current folder with \`chcli env use <name>\`.
 
 Output:
   -F, --format <fmt>      Output format (json, jsonl, csv, tsv, pretty, vertical, markdown, sql)

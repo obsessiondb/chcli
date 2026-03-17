@@ -66,5 +66,16 @@ describe("parseCliArgs", () => {
     expect(config.file).toBeUndefined();
     expect(config.host).toBeUndefined();
     expect(config.format).toBeUndefined();
+    expect(config.env).toBeUndefined();
+  });
+
+  test("parses --env flag", () => {
+    const config = parseCliArgs(["--env", "prod", "-q", "SELECT 1"]);
+    expect(config.env).toBe("prod");
+  });
+
+  test("parses -e shorthand for --env", () => {
+    const config = parseCliArgs(["-e", "staging", "-q", "SELECT 1"]);
+    expect(config.env).toBe("staging");
   });
 });
