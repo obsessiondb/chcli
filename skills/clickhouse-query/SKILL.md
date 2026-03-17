@@ -30,7 +30,35 @@ chcli -q "SELECT 1"
 
 ## Connection
 
-Set connection details via environment variables (preferred for agent use) or CLI flags.
+Set connection details via named environments (recommended), environment variables, or CLI flags.
+
+### Named Environments
+
+Named environments store connection profiles in `~/.config/chcli/config.json`. This is the recommended approach when working with multiple ClickHouse instances.
+
+```bash
+# Save a named environment
+chcli env add prod --host ch.prod.com --port 8443 --secure -u admin --password secret
+
+# Use it for a query
+chcli -e prod -q "SELECT count() FROM events"
+
+# Or set it as the default for the current directory
+chcli env use prod
+chcli -q "SELECT count() FROM events"  # uses prod automatically
+```
+
+Manage environments with `chcli env`:
+
+| Subcommand | Description |
+|------------|-------------|
+| `env add <name>` | Add or update an environment (merges with existing) |
+| `env list` / `env ls` | List all environments |
+| `env show <name>` | Show environment details (passwords masked) |
+| `env remove <name>` / `env rm` | Remove an environment |
+| `env use <name>` | Set default environment for the current directory |
+
+### Environment Variables
 
 | Flag | Env Var | Alt Env Var | Default |
 |------|---------|-------------|---------|
@@ -47,10 +75,10 @@ Set connection details via environment variables (preferred for agent use) or CL
 ### Resolution Order
 
 ```
-CLI flag > Individual env var > CLICKHOUSE_URL (parsed) > Default value
+CLI flag > Named environment (--env or folder default) > Individual env var > CLICKHOUSE_URL (parsed) > Default value
 ```
 
-For agent workflows, prefer setting env vars in a `.env` file (Bun loads `.env` automatically) or using a secrets manager like Doppler so every invocation uses the same connection without repeating flags.
+For agent workflows, prefer setting env vars in a `.env` file (Bun loads `.env` automatically), using named environments, or a secrets manager like Doppler so every invocation uses the same connection without repeating flags.
 
 See `references/connection.md` for detailed connection examples.
 
@@ -141,6 +169,7 @@ bunx @obsessiondb/chcli -q "SELECT * FROM events LIMIT 1000" -F json > export.js
 
 | Flag | Description |
 |------|-------------|
+| `-e, --env <name>` | Use a named environment (overrides folder default) |
 | `-t, --time` | Print execution time to stderr |
 | `-v, --verbose` | Print query metadata (format, elapsed time) to stderr |
 | `--help` | Show help text |
