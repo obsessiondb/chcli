@@ -60,7 +60,7 @@ describe("e2e", () => {
 
   test("multi-row query with markdown format", async () => {
     const result =
-      await $`bun ${CLI_PATH} -q "SELECT number AS n FROM system.numbers LIMIT 3" -F markdown`.text();
+      await $`bun ${CLI_PATH} -q "SELECT 0 AS n UNION ALL SELECT 1 UNION ALL SELECT 2" -F markdown`.text();
     expect(result).toContain("| n |");
     expect(result).toContain("| 0 |");
     expect(result).toContain("| 1 |");
