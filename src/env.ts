@@ -116,7 +116,7 @@ async function envList(): Promise<void> {
     const env = config.environments[name];
     const isDefault = name === defaultEnv;
     const marker = isDefault ? " (default)" : "";
-    const host = env.url ?? env.host ?? "localhost";
+    const host = env?.url ?? env?.host ?? "localhost";
     console.log(`  ${name}${marker} — ${host}`);
   }
 }

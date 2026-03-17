@@ -64,8 +64,8 @@ describe("env subcommands", () => {
     await runEnvCommand(["add", "prod", "--host", "new.com"]);
 
     const config = await readConfig();
-    expect(config.environments.prod.host).toBe("new.com");
-    expect(config.environments.prod.user).toBe("admin");
+    expect(config.environments.prod!.host).toBe("new.com");
+    expect(config.environments.prod!.user).toBe("admin");
   });
 
   test("env list shows environments", async () => {
