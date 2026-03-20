@@ -8,6 +8,7 @@ import {
   type Environment,
 } from "./config";
 import { resolveConnectionConfig } from "./client";
+import type { CliConfig } from "./cli";
 
 export async function runEnvCommand(args: readonly string[]): Promise<void> {
   const subcommand = args[0];
@@ -104,7 +105,7 @@ async function envAdd(args: readonly string[]): Promise<void> {
   if (!values["no-verify"]) {
     const { createClient } = await import("@clickhouse/client");
 
-    const connConfig = resolveConnectionConfig({}, {}, merged);
+    const connConfig = resolveConnectionConfig({} as CliConfig, {},merged);
     const client = createClient(connConfig);
     try {
       await client.query({ query: "SELECT 1", format: "JSON" });
@@ -112,7 +113,7 @@ async function envAdd(args: readonly string[]): Promise<void> {
       // If not already secure, retry with HTTPS on port 8443
       if (!merged.secure && !merged.url) {
         const secureEnv = { ...merged, secure: true, port: merged.port || "8443" };
-        const secureConfig = resolveConnectionConfig({}, {}, secureEnv);
+        const secureConfig = resolveConnectionConfig({} as CliConfig, {},secureEnv);
         const secureClient = createClient(secureConfig);
         try {
           await secureClient.query({ query: "SELECT 1", format: "JSON" });
