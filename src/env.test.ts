@@ -48,6 +48,7 @@ describe("env subcommands", () => {
       "--port",
       "8443",
       "-s",
+      "--no-verify",
     ]);
 
     const config = await readConfig();
@@ -61,11 +62,28 @@ describe("env subcommands", () => {
   test("env add merges with existing environment", async () => {
     await setEnvironment("prod", { host: "old.com", user: "admin" });
 
-    await runEnvCommand(["add", "prod", "--host", "new.com"]);
+    await runEnvCommand(["add", "prod", "--host", "new.com", "--no-verify"]);
 
     const config = await readConfig();
     expect(config.environments.prod!.host).toBe("new.com");
     expect(config.environments.prod!.user).toBe("admin");
+  });
+
+  test("env add rejects environment with no host or url", async () => {
+    const spy = spyOn(process, "exit").mockImplementation(() => {
+      throw new Error("process.exit");
+    });
+    const errSpy = spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(
+      runEnvCommand(["add", "empty", "--no-verify"]),
+    ).rejects.toThrow("process.exit");
+
+    spy.mockRestore();
+    errSpy.mockRestore();
+
+    const config = await readConfig();
+    expect(config.environments.empty).toBeUndefined();
   });
 
   test("env list shows environments", async () => {
