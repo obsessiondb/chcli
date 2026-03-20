@@ -1,6 +1,6 @@
 {
   "name": "@obsessiondb/chcli",
-  "version": "0.1.1-beta.5",
+  "version": "0.1.1-beta.6",
   "description": "Lightweight ClickHouse CLI — run queries from the terminal via inline SQL, files, or stdin",
   "type": "module",
   "bin": {
