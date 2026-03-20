@@ -7,6 +7,7 @@ import {
   getEnvironment,
   type Environment,
 } from "./config";
+import { resolveConnectionConfig } from "./client";
 
 export async function runEnvCommand(args: readonly string[]): Promise<void> {
   const subcommand = args[0];
@@ -50,6 +51,7 @@ Add options:
   -d, --database <db>     Database
   -s, --secure            Use HTTPS
       --url <url>         ClickHouse URL (sets host, port, secure, password)
+      --no-verify         Skip connection verification
 
 Examples:
   chcli env add prod --host ch.prod.com --port 8443 --secure -u admin
@@ -68,6 +70,7 @@ async function envAdd(args: readonly string[]): Promise<void> {
       database: { type: "string", short: "d" },
       secure: { type: "boolean", short: "s", default: false },
       url: { type: "string" },
+      "no-verify": { type: "boolean", default: false },
     },
     allowPositionals: true,
     strict: true,
@@ -89,13 +92,55 @@ async function envAdd(args: readonly string[]): Promise<void> {
   if (values.url) env.url = values.url;
 
   const existing = await getEnvironment(name);
+  const merged = existing ? { ...existing, ...env } : env;
+
+  // Require at least a host or url
+  if (!merged.host && !merged.url) {
+    console.error("Error: at least --host or --url is required");
+    process.exit(1);
+  }
+
+  // Verify connection unless --no-verify is passed
+  if (!values["no-verify"]) {
+    const { createClient } = await import("@clickhouse/client");
+
+    const connConfig = resolveConnectionConfig({}, {}, merged);
+    const client = createClient(connConfig);
+    try {
+      await client.query({ query: "SELECT 1", format: "JSON" });
+    } catch (firstErr: any) {
+      // If not already secure, retry with HTTPS on port 8443
+      if (!merged.secure && !merged.url) {
+        const secureEnv = { ...merged, secure: true, port: merged.port || "8443" };
+        const secureConfig = resolveConnectionConfig({}, {}, secureEnv);
+        const secureClient = createClient(secureConfig);
+        try {
+          await secureClient.query({ query: "SELECT 1", format: "JSON" });
+          merged.secure = true;
+          if (!merged.port) merged.port = "8443";
+          console.log("Detected HTTPS on port 8443 — added automatically");
+        } catch (secondErr: any) {
+          const msg = firstErr?.message ?? String(firstErr);
+          console.error(`Error: connection to ClickHouse failed\n${msg}`);
+          process.exit(1);
+        } finally {
+          await secureClient.close();
+        }
+      } else {
+        const msg = firstErr?.message ?? String(firstErr);
+        console.error(`Error: connection to ClickHouse failed\n${msg}`);
+        process.exit(1);
+      }
+    } finally {
+      await client.close();
+    }
+  }
+
   if (existing) {
-    // Merge with existing — only override fields that were explicitly passed
-    const merged = { ...existing, ...env };
     await setEnvironment(name, merged);
     console.log(`Updated environment "${name}"`);
   } else {
-    await setEnvironment(name, env);
+    await setEnvironment(name, merged);
     console.log(`Added environment "${name}"`);
   }
 }
